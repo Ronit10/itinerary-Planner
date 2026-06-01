@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kullu–Manali Trip Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --green: #1A9B6C;
+    --green-light: #22C98C;
+    --green-dim: #0E6B4B;
+    --gold: #E8A83A;
+    --snow: #F4F6F2;
+    --slate: #1C2520;
+    --slate-mid: #2E3C36;
+    --slate-soft: #3D5047;
+    --mist: #8BA99A;
+    --card-bg: #232E28;
+    --card-border: rgba(139,169,154,0.18);
+    --red: #E05C4B;
+    --purple-soft: #9B8FE8;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--slate);
+    color: var(--snow);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── MOUNTAIN HERO ── */
+  .hero {
+    position: relative;
+    padding: 28px 20px 20px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #0E2A1E 0%, #1A3A28 50%, #0A1F16 100%);
+    z-index: 0;
+  }
+  .hero-mountains {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 80px; z-index: 1; opacity: 0.18;
+  }
+  .hero-content { position: relative; z-index: 2; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(26,155,108,0.2); border: 1px solid rgba(26,155,108,0.35);
+    color: var(--green-light); font-size: 11px; font-weight: 500;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 10px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800; line-height: 1.1;
+    color: var(--snow); margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+  .hero-title span { color: var(--green-light); }
+  .hero-meta {
+    font-size: 12px; color: var(--mist);
+    display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px;
+  }
+  .hero-meta-item { display: flex; align-items: center; gap: 5px; }
+
+  /* ── TABS ── */
+  .tab-wrap {
+    display: flex; gap: 4px; padding: 12px 16px 0;
+    background: var(--slate);
+    border-bottom: 1px solid rgba(139,169,154,0.12);
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .tab-wrap::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1; min-width: 60px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px 10px;
+    font-size: 11px; font-weight: 500; color: var(--mist);
+    border: none; background: none; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .tab i { font-size: 17px; }
+  .tab.active { color: var(--green-light); border-bottom-color: var(--green-light); }
+  .tab:hover:not(.active) { color: var(--snow); }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  /* ── SECTION HEADER ── */
+  .section-head {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--mist);
+    margin-bottom: 10px; margin-top: 18px;
+  }
+  .section-head:first-child { margin-top: 0; }
+
+  /* ── PLAN TOGGLE ── */
+  .plan-toggle {
+    display: flex; gap: 6px; margin-bottom: 14px;
+    background: var(--card-bg); padding: 4px; border-radius: var(--radius-sm);
+  }
+  .plan-btn {
+    flex: 1; padding: 8px 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 500;
+    border: none; border-radius: 6px;
+    background: transparent; color: var(--mist); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .plan-btn.active {
+    background: var(--green); color: #fff;
+    box-shadow: 0 2px 8px rgba(26,155,108,0.4);
+  }
+
+  /* ── DAY CARDS ── */
+  .day-card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius); margin-bottom: 10px;
+    overflow: hidden; transition: box-shadow 0.2s;
+  }
+  .day-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+  .day-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 14px; cursor: pointer;
+  }
+  .day-date {
+    background: var(--green); color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700; padding: 3px 9px;
+    border-radius: 6px; white-space: nowrap; letter-spacing: 0.3px;
+  }
+  .day-title-text {
+    flex: 1; font-size: 13px; font-weight: 500; color: var(--snow);
+  }
+  .day-toggle-icon {
+    font-size: 16px; color: var(--mist); transition: transform 0.25s;
+  }
+  .day-toggle-icon.open { transform: rotate(180deg); }
+
+  /* ── STOPS ── */
+  .stops-body { padding: 0 14px 12px 14px; border-top: 1px solid var(--card-border); }
+  .stop-row { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(139,169,154,0.08); }
+  .stop-row:last-child { border-bottom: none; }
+  .stop-dot-col { display: flex; flex-direction: column; align-items: center; padding-top: 3px; }
+  .stop-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green-light); flex-shrink: 0;
+  }
+  .stop-line { flex: 1; width: 1.5px; background: rgba(139,169,154,0.2); margin-top: 4px; }
+  .stop-content { flex: 1; }
+  .stop-name { font-size: 13px; font-weight: 500; color: var(--snow); }
+  .stop-desc { font-size: 12px; color: var(--mist); margin-top: 3px; line-height: 1.55; }
+  .stop-tip {
+    display: inline-flex; align-items: flex-start; gap: 5px;
+    font-size: 11px; color: var(--green-light);
+    background: rgba(26,155,108,0.1); border-radius: 6px;
+    padding: 5px 8px; margin-top: 6px; line-height: 1.4;
+  }
+
+  /* ── BUDGET CARDS ── */
+  .summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;
+  }
+  .s-card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 14px 12px; text-align: center;
+  }
+  .s-card-label { font-size: 10px; color: var(--mist); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+  .s-card-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--snow); }
+  .s-card-sub { font-size: 10px; color: var(--mist); margin-top: 2px; }
+
+  /* ── EXPENSE LIST (Budget tab) ── */
+  .budget-section-title {
+    font-size: 10px; font-weight: 600; color: var(--green-light);
+    text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 8px;
+  }
+  .exp-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm); margin-bottom: 6px;
+  }
+  .exp-icon { font-size: 16px; color: var(--mist); width: 20px; text-align: center; flex-shrink: 0; }
+  .exp-label { flex: 1; font-size: 12px; color: var(--snow); }
+  .exp-amount { font-size: 12px; font-weight: 600; color: var(--snow); white-space: nowrap; }
+  .exp-split { font-size: 10px; color: var(--green-light); margin-left: 4px; }
+
+  /* ── TRACKER ── */
+  .add-row {
+    display: flex; gap: 6px; margin-bottom: 14px;
+  }
+  .inp {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; padding: 10px 12px;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm); color: var(--snow);
+    outline: none; transition: border-color 0.2s;
+  }
+  .inp:focus { border-color: var(--green); }
+  .inp::placeholder { color: var(--mist); }
+  .inp-name { flex: 1; min-width: 0; }
+  .inp-amt { width: 72px; }
+  .inp-who { width: 80px; }
+  select.inp option { background: var(--slate-mid); }
+  .btn-green {
+    background: var(--green); color: #fff; border: none;
+    padding: 10px 14px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .btn-green:hover { background: var(--green-light); }
+
+  .tracked-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm); margin-bottom: 6px;
+  }
+  .who-pill {
+    font-size: 10px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+  .who-a { background: rgba(34,201,140,0.12); color: #22C98C; }
+  .who-b { background: rgba(155,143,232,0.15); color: var(--purple-soft); }
+  .who-both { background: rgba(232,168,58,0.12); color: var(--gold); }
+  .tracked-label { flex: 1; font-size: 13px; color: var(--snow); }
+  .tracked-amt { font-size: 13px; font-weight: 600; color: var(--snow); }
+  .btn-del {
+    background: none; border: none; color: var(--mist);
+    cursor: pointer; font-size: 14px; padding: 3px; line-height: 1;
+    transition: color 0.2s;
+  }
+  .btn-del:hover { color: var(--red); }
+
+  /* Progress bar */
+  .prog-wrap { margin: 8px 0 4px; }
+  .prog-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--mist); margin-bottom: 5px; }
+  .prog-bar { height: 7px; background: var(--slate-mid); border-radius: 4px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; background: var(--green); transition: width 0.4s ease; }
+  .prog-fill.warn { background: var(--gold); }
+  .prog-fill.over { background: var(--red); }
+
+  /* ── SPLIT ── */
+  .split-card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+  }
+  .split-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid rgba(139,169,154,0.1);
+  }
+  .split-row:last-child { border-bottom: none; }
+  .split-label { font-size: 13px; color: var(--mist); }
+  .split-val { font-size: 14px; font-weight: 600; }
+  .split-val.green { color: var(--green-light); }
+  .split-val.red { color: var(--red); }
+  .split-val.neutral { color: var(--snow); }
+  .split-val.muted { color: var(--mist); }
+
+  .settle-banner {
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .settle-banner.owes { background: rgba(224,92,75,0.12); border: 1px solid rgba(224,92,75,0.25); }
+  .settle-banner.clear { background: rgba(26,155,108,0.1); border: 1px solid rgba(26,155,108,0.25); }
+  .settle-text { font-size: 13px; font-weight: 500; }
+  .settle-amt { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
+
+  /* ── CUSTOM ITINERARY ── */
+  .my-itinerary-info {
+    font-size: 12px; color: var(--mist);
+    background: rgba(26,155,108,0.08); border: 1px solid rgba(26,155,108,0.2);
+    border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; line-height: 1.55;
+  }
+  .add-stop-form {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+  }
+  .form-label { font-size: 11px; color: var(--mist); margin-bottom: 4px; display: block; font-weight: 500; }
+  .inp-full { width: 100%; margin-bottom: 8px; }
+  .inp-half-wrap { display: flex; gap: 8px; margin-bottom: 8px; }
+  .inp-half { flex: 1; }
+  textarea.inp {
+    width: 100%; resize: vertical; min-height: 60px; line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .my-day-card {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+  }
+  .my-day-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+    cursor: pointer;
+  }
+  .my-day-actions { display: flex; gap: 6px; margin-left: auto; }
+  .btn-icon {
+    background: none; border: none; color: var(--mist); cursor: pointer;
+    font-size: 15px; padding: 2px; transition: color 0.2s;
+  }
+  .btn-icon:hover { color: var(--snow); }
+  .btn-icon.danger:hover { color: var(--red); }
+
+  .my-stops-body { padding: 0 14px 12px; border-top: 1px solid var(--card-border); }
+  .my-stop-row {
+    display: flex; gap: 10px; padding: 8px 0;
+    border-bottom: 1px solid rgba(139,169,154,0.07);
+  }
+  .my-stop-row:last-child { border-bottom: none; }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center; padding: 30px 20px;
+    color: var(--mist); font-size: 13px;
+  }
+  .empty i { font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.5; }
+
+  /* ── UTIL ── */
+  .note-box {
+    background: rgba(26,155,108,0.07); border: 1px solid rgba(26,155,108,0.2);
+    border-radius: var(--radius-sm); padding: 10px 12px;
+    font-size: 12px; color: var(--mist); line-height: 1.55;
+  }
+  .divider { border: none; border-top: 1px solid var(--card-border); margin: 14px 0; }
+
+  .cat-bar-row { margin-bottom: 10px; }
+  .cat-bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; color: var(--mist); }
+  .cat-bar-label span:first-child { color: var(--snow); }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .page.active { animation: fadeIn 0.2s ease; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--slate-soft); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <svg class="hero-mountains" viewBox="0 0 400 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="0,80 40,30 80,55 130,10 180,45 240,5 300,40 340,20 400,35 400,80" fill="white"/>
+  </svg>
+  <div class="hero-content">
+    <div class="hero-badge"><i class="ti ti-mountain"></i> Bike Trip · Planned</div>
+    <div class="hero-title">Kullu–<span>Manali</span><br>+ Chandratal</div>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><i class="ti ti-calendar"></i> Jun 17–22, 2025</div>
+      <div class="hero-meta-item"><i class="ti ti-users"></i> 2 Riders</div>
+      <div class="hero-meta-item"><i class="ti ti-motorbike"></i> RE Himalayan</div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-wrap">
+  <button class="tab active" onclick="switchTab('plan',this)"><i class="ti ti-map-2"></i>Plan</button>
+  <button class="tab" onclick="switchTab('budget',this)"><i class="ti ti-wallet"></i>Budget</button>
+  <button class="tab" onclick="switchTab('tracker',this)"><i class="ti ti-receipt"></i>Track</button>
+  <button class="tab" onclick="switchTab('split',this)"><i class="ti ti-users"></i>Split</button>
+  <button class="tab" onclick="switchTab('mytrip',this)"><i class="ti ti-pencil"></i>My Trip</button>
+</div>
+
+<!-- ════════════════ PAGE: PLAN ════════════════ -->
+<div id="page-plan" class="page active">
+  <div class="plan-toggle">
+    <button class="plan-btn active" onclick="switchPlan(1,this)">Plan A — Chandratal</button>
+    <button class="plan-btn" onclick="switchPlan(2,this)">Plan B — Budget ₹6.5k</button>
+  </div>
+
+  <!-- PLAN A -->
+  <div id="plan1">
+    <!-- Day 1 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d1')">
+        <span class="day-date">Jun 17</span>
+        <span class="day-title-text">Wed · Night Departure</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="d1-icon"></i>
+      </div>
+      <div class="stops-body" id="d1-stops" style="display:none">
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🚌 9–10 PM — Leave Jaipur</div>
+            <div class="stop-desc">Non-AC sleeper bus to Manali. ~18–20 hrs journey. Book on RedBus/AbhiBus in advance.</div>
+            <div class="stop-tip"><i class="ti ti-bulb"></i>Volvo seat ₹1,500–1,800 / Non-AC ₹1,000–1,300 per person</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Day 2 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d2')">
+        <span class="day-date">Jun 18</span>
+        <span class="day-title-text">Thu · Arrive Manali</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="d2-icon"></i>
+      </div>
+      <div class="stops-body" id="d2-stops" style="display:none">
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🏔️ Reach Manali (3–5 PM)</div>
+            <div class="stop-desc">Check into budget hostel in Old Manali. Rest and freshen up.</div>
+            <div class="stop-tip"><i class="ti ti-bulb"></i>Zostel / Apple Country Hostels — ₹400–600/bed. Book ahead for June!</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🏍️ Rent RE Himalayan</div>
+            <div class="stop-desc">Pick up from Mall Road rental shops. ₹1,500–2,500/day. Strongly preferred for Chandratal.</div>
+            <div class="stop-tip"><i class="ti ti-bulb"></i>Carry extra 5L fuel can — no pumps between Manali and Kaza!</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🛕 Evening Stroll</div>
+            <div class="stop-desc">Hadimba Temple, Old Manali market, riverside walk. Completely free!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Day 3 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d3')">
+        <span class="day-date">Jun 19</span>
+        <span class="day-title-text">Fri · Solang → Atal Tunnel → Sissu</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="d3-icon"></i>
+      </div>
+      <div class="stops-body" id="d3-stops" style="display:none">
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🎿 8 AM — Solang Valley</div>
+            <div class="stop-desc">Snow activities, zip-lining, stunning glacier views. Entry ₹50.</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🚇 Atal Tunnel</div>
+            <div class="stop-desc">World's longest high-altitude tunnel. Bike through — thrilling! ₹50 toll.</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">❄️ Sissu</div>
+            <div class="stop-desc">Lahaul Valley's hidden gem — waterfall, frozen-lake views, army check post. Peaceful &amp; free.</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🏠 Return to Manali</div>
+            <div class="stop-desc">~75 km ride back. Early night — big day tomorrow!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Day 4 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d4')">
+        <span class="day-date">Jun 20</span>
+        <span class="day-title-text">Sat · Chandratal Lake 🌙</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="d4-icon"></i>
+      </div>
+      <div class="stops-body" id="d4-stops" style="display:none">
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">⚠️ Pre-check: Road open?</div>
+            <div class="stop-desc">Check live status at spitivalleypackages.com the previous night. Kunzum Pass → Batal → Chandratal diversion opens mid-June.</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🌅 4 AM — Depart Manali</div>
+            <div class="stop-desc">Manali → Gramphu → Batal → Chandratal. ~130 km, 5–6 hrs with rough terrain.</div>
+            <div class="stop-tip"><i class="ti ti-bulb"></i>Full tank + extra fuel. Carry water, warm layers, energy bars.</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🏕️ Camp at Chandratal</div>
+            <div class="stop-desc">Stay at seasonal camps 2 km from lake (lakeside camping banned). ₹1,200–1,500/person.</div>
+            <div class="stop-tip"><i class="ti ti-bulb"></i>Get FREE e-permit at eaagman.hp.gov.in before leaving home. Entry ₹150/person.</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🌙 Sunset at the Lake</div>
+            <div class="stop-desc">The crescent-moon shaped lake at 4,300m. One of India's most stunning sights. Worth every penny!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Day 5 -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d5')">
+        <span class="day-date">Jun 21</span>
+        <span class="day-title-text">Sun · Return + Bus Home</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="d5-icon"></i>
+      </div>
+      <div class="stops-body" id="d5-stops" style="display:none">
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🌄 6 AM — Lake Sunrise</div>
+            <div class="stop-desc">Wake up early for golden-hour views at 4,300m. Set that alarm!</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🏍️ Ride Back to Manali</div>
+            <div class="stop-desc">Return via same route. ~6 hrs. Return bike by 4–5 PM.</div>
+          </div>
+        </div>
+        <div class="stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div></div>
+          <div class="stop-content">
+            <div class="stop-name">🚌 Evening Bus Home</div>
+            <div class="stop-desc">Manali → Jaipur overnight bus. Reach Jaipur Jun 22 morning ✓</div>
+            <div class="stop-tip"><i class="ti ti-bulb"></i>Book return bus before leaving Jaipur!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAN B -->
+  <div id="plan2" style="display:none">
+    <div class="note-box" style="margin-bottom:14px">
+      <i class="ti ti-info-circle"></i> Budget version — skip Chandratal. Kullu + Kasol + Manali. ~₹6,500/person. Chandratal deserves its own dedicated 6-day trip!
+    </div>
+    <!-- Plan B days -->
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('p2d1')">
+        <span class="day-date">Jun 17</span><span class="day-title-text">Wed · Night Departure</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="p2d1-icon"></i>
+      </div>
+      <div class="stops-body" id="p2d1-stops" style="display:none">
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div></div><div class="stop-content">
+          <div class="stop-name">🚌 9–10 PM — Non-AC Sleeper Bus</div>
+          <div class="stop-desc">Jaipur → Manali direct. ₹1,000–1,300. Book on RedBus/AbhiBus now.</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('p2d2')">
+        <span class="day-date">Jun 18</span><span class="day-title-text">Thu · Manali Arrival + Old Manali</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="p2d2-icon"></i>
+      </div>
+      <div class="stops-body" id="p2d2-stops" style="display:none">
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div><div class="stop-content">
+          <div class="stop-name">🏔️ Arrive ~3–5 PM, Check In</div>
+          <div class="stop-desc">Budget guesthouse/hostel Old Manali ₹400–600/bed. Rent Classic 350 ₹1,000–1,300/day.</div>
+        </div></div>
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div></div><div class="stop-content">
+          <div class="stop-name">🛕 Evening — Hadimba + Old Manali</div>
+          <div class="stop-desc">Temple, riverside cafes, chill. Free evening.</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('p2d3')">
+        <span class="day-date">Jun 19</span><span class="day-title-text">Fri · Solang Valley + Sissu</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="p2d3-icon"></i>
+      </div>
+      <div class="stops-body" id="p2d3-stops" style="display:none">
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div></div><div class="stop-content">
+          <div class="stop-name">🎿 Solang Valley → Atal Tunnel → Sissu</div>
+          <div class="stop-desc">Full day ride. Glacier views, waterfall at Sissu. ~150 km total. Return by evening.</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('p2d4')">
+        <span class="day-date">Jun 20</span><span class="day-title-text">Sat · Kasol + Manikaran Sahib</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="p2d4-icon"></i>
+      </div>
+      <div class="stops-body" id="p2d4-stops" style="display:none">
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div><div class="stop-content">
+          <div class="stop-name">🚗 8 AM — Manali → Kullu → Kasol</div>
+          <div class="stop-desc">~80 km. Parvati Valley vibes. Riverside cafes, Israeli food, chill walks.</div>
+        </div></div>
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div><div class="stop-content">
+          <div class="stop-name">🛕 Manikaran Sahib Gurudwara</div>
+          <div class="stop-desc">Free langar — dal, roti, rice, kheer. Hot springs nearby.</div>
+          <div class="stop-tip"><i class="ti ti-bulb"></i>Free full meal saves ₹200–300 per person!</div>
+        </div></div>
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div></div><div class="stop-content">
+          <div class="stop-name">🌆 Kullu Market + Return</div>
+          <div class="stop-desc">Pick up Kullu shawls, local snacks. Return to Manali, return bike.</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('p2d5')">
+        <span class="day-date">Jun 21</span><span class="day-title-text">Sun · Back to Jaipur</span>
+        <i class="ti ti-chevron-down day-toggle-icon" id="p2d5-icon"></i>
+      </div>
+      <div class="stops-body" id="p2d5-stops" style="display:none">
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div><div class="stop-line"></div></div><div class="stop-content">
+          <div class="stop-name">🌄 Morning — Manu Temple / Mall Road</div>
+          <div class="stop-desc">Last look at the mountains. Breakfast. Pack up.</div>
+        </div></div>
+        <div class="stop-row"><div class="stop-dot-col"><div class="stop-dot"></div></div><div class="stop-content">
+          <div class="stop-name">🚌 Evening Bus Manali → Jaipur</div>
+          <div class="stop-desc">Overnight return. Reach Jaipur Jun 22 early morning ✓</div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ PAGE: BUDGET ════════════════ -->
+<div id="page-budget" class="page">
+  <div class="plan-toggle">
+    <button class="plan-btn active" onclick="switchBudgetPlan(1,this)">Plan A — Chandratal</button>
+    <button class="plan-btn" onclick="switchBudgetPlan(2,this)">Plan B — Budget</button>
+  </div>
+
+  <div id="budget1">
+    <div class="summary-grid">
+      <div class="s-card"><div class="s-card-label">Total (2 people)</div><div class="s-card-val">₹21,200</div><div class="s-card-sub">estimated</div></div>
+      <div class="s-card"><div class="s-card-label">Per person</div><div class="s-card-val">₹10,600</div><div class="s-card-sub">avg midrange</div></div>
+    </div>
+    <div class="budget-section-title">🚌 Transport</div>
+    <div class="exp-row"><i class="ti ti-bus exp-icon"></i><span class="exp-label">Bus Jaipur→Manali (×2)</span><span class="exp-amount">₹2,600–3,200</span></div>
+    <div class="exp-row"><i class="ti ti-bus exp-icon"></i><span class="exp-label">Bus Manali→Jaipur (×2)</span><span class="exp-amount">₹2,600–3,200</span></div>
+    <div class="exp-row"><i class="ti ti-motorbike exp-icon"></i><span class="exp-label">RE Himalayan 3 days</span><span class="exp-amount">₹4,500–7,500<span class="exp-split">÷2</span></span></div>
+    <div class="exp-row"><i class="ti ti-droplet exp-icon"></i><span class="exp-label">Fuel ~400 km</span><span class="exp-amount">≈₹1,200<span class="exp-split">÷2</span></span></div>
+    <div class="budget-section-title">🏕️ Stay</div>
+    <div class="exp-row"><i class="ti ti-bed exp-icon"></i><span class="exp-label">Hostel Manali 2 nights (÷2)</span><span class="exp-amount">₹800–1,200</span></div>
+    <div class="exp-row"><i class="ti ti-tent exp-icon"></i><span class="exp-label">Chandratal camp (per person)</span><span class="exp-amount">₹1,200–1,500</span></div>
+    <div class="budget-section-title">🍛 Food &amp; Entry</div>
+    <div class="exp-row"><i class="ti ti-tools-kitchen-2 exp-icon"></i><span class="exp-label">Food 4.5 days × ₹300/day</span><span class="exp-amount">≈₹1,350</span></div>
+    <div class="exp-row"><i class="ti ti-ticket exp-icon"></i><span class="exp-label">Chandratal permit + entry</span><span class="exp-amount">₹150</span></div>
+    <div class="exp-row"><i class="ti ti-coffee exp-icon"></i><span class="exp-label">Misc tolls + chai + snacks</span><span class="exp-amount">≈₹500</span></div>
+    <div class="note-box" style="margin-top:10px">
+      <i class="ti ti-info-circle"></i> Per person: <strong style="color:var(--snow)">≈₹9,500–11,700</strong>. Extra cash recommended for contingencies on high-altitude routes.
+    </div>
+  </div>
+
+  <div id="budget2" style="display:none">
+    <div class="summary-grid">
+      <div class="s-card"><div class="s-card-label">Total (2 people)</div><div class="s-card-val">₹13,000</div><div class="s-card-sub">estimated</div></div>
+      <div class="s-card"><div class="s-card-label">Per person</div><div class="s-card-val">₹6,500</div><div class="s-card-sub">tight but doable!</div></div>
+    </div>
+    <div class="budget-section-title">🚌 Transport</div>
+    <div class="exp-row"><i class="ti ti-bus exp-icon"></i><span class="exp-label">Bus both ways (×2 per person)</span><span class="exp-amount">₹2,600–3,200</span></div>
+    <div class="exp-row"><i class="ti ti-motorbike exp-icon"></i><span class="exp-label">Classic 350 — 2 days (÷2)</span><span class="exp-amount">₹1,000–1,300</span></div>
+    <div class="exp-row"><i class="ti ti-droplet exp-icon"></i><span class="exp-label">Fuel ~250 km (÷2)</span><span class="exp-amount">≈₹450</span></div>
+    <div class="budget-section-title">🏨 Stay</div>
+    <div class="exp-row"><i class="ti ti-bed exp-icon"></i><span class="exp-label">Hostel 3 nights (÷2)</span><span class="exp-amount">₹600–900</span></div>
+    <div class="budget-section-title">🍛 Food &amp; Misc</div>
+    <div class="exp-row"><i class="ti ti-tools-kitchen-2 exp-icon"></i><span class="exp-label">Food 4.5 days × ₹250/day</span><span class="exp-amount">≈₹1,125</span></div>
+    <div class="exp-row"><i class="ti ti-building-temple exp-icon"></i><span class="exp-label">Manikaran langar (FREE meal!)</span><span class="exp-amount">₹0 🙏</span></div>
+    <div class="exp-row"><i class="ti ti-coffee exp-icon"></i><span class="exp-label">Misc tolls + chai + snacks</span><span class="exp-amount">≈₹400</span></div>
+    <div class="note-box" style="margin-top:10px;border-color:rgba(26,155,108,0.35);background:rgba(26,155,108,0.1)">
+      <i class="ti ti-circle-check" style="color:var(--green-light)"></i> Per person: <strong style="color:var(--green-light)">≈₹6,175–6,775</strong>. Manikaran free langar saves a full meal. Fits your ₹6,500 target!
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ PAGE: TRACKER ════════════════ -->
+<div id="page-tracker" class="page">
+  <div style="display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--mist)">Who paid?</span>
+    <span class="who-pill who-a">Person A</span>
+    <span class="who-pill who-b">Person B</span>
+    <span class="who-pill who-both">Both / Split</span>
+  </div>
+
+  <div class="add-row">
+    <input type="text" id="exp-name" class="inp inp-name" placeholder="What (e.g. Fuel, Hostel)">
+    <input type="number" id="exp-amt" class="inp inp-amt" placeholder="₹" min="0">
+    <select id="exp-who" class="inp inp-who">
+      <option value="A">A paid</option>
+      <option value="B">B paid</option>
+      <option value="both">Split</option>
+    </select>
+    <button class="btn-green" onclick="addExpense()"><i class="ti ti-plus"></i></button>
+  </div>
+
+  <div id="expense-list"></div>
+
+  <div class="prog-wrap">
+    <div class="prog-labels"><span>Spent so far</span><span id="spent-pct">₹0 / ₹21,200</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div style="font-size:11px;color:var(--mist);text-align:center;margin-top:8px">Expenses auto-saved in your browser</div>
+</div>
+
+<!-- ════════════════ PAGE: SPLIT ════════════════ -->
+<div id="page-split" class="page">
+  <div class="summary-grid" style="margin-bottom:12px">
+    <div class="s-card"><div class="s-card-label">Total Spent</div><div class="s-card-val" id="split-total">₹0</div><div class="s-card-sub">all expenses</div></div>
+    <div class="s-card"><div class="s-card-label">Fair Share Each</div><div class="s-card-val" id="split-each">₹0</div><div class="s-card-sub">50–50 split</div></div>
+  </div>
+
+  <div class="settle-banner clear" id="settle-banner">
+    <div>
+      <div style="font-size:10px;color:var(--mist);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.6px">Settlement</div>
+      <div class="settle-text" id="settle-text" style="color:var(--green-light)">All Settled ✓</div>
+    </div>
+    <div class="settle-amt" id="settle-amt" style="color:var(--green-light)">₹0</div>
+  </div>
+
+  <div class="split-card">
+    <div class="split-row">
+      <span class="split-label">Person A paid</span>
+      <span class="split-val neutral" id="a-paid">₹0</span>
+    </div>
+    <div class="split-row">
+      <span class="split-label">Person B paid</span>
+      <span class="split-val neutral" id="b-paid">₹0</span>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin-bottom:14px">
+    <i class="ti ti-info-circle"></i> "Both" expenses are split 50–50. Individual payments by A or B count toward their total.
+  </div>
+
+  <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mist);margin-bottom:10px">Category Breakdown</div>
+  <div id="category-breakdown"></div>
+</div>
+
+<!-- ════════════════ PAGE: MY TRIP ════════════════ -->
+<div id="page-mytrip" class="page">
+  <div class="my-itinerary-info">
+    <strong style="color:var(--green-light)"><i class="ti ti-device-floppy"></i> Auto-saved</strong> — Everything you add here is saved in your browser and will be there when you reopen this file.
+  </div>
+
+  <!-- Trip name edit -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:10px;color:var(--mist);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;font-weight:600">Trip Name</div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="trip-name-inp" class="inp" style="flex:1" placeholder="e.g. Spiti Valley 2025">
+      <button class="btn-green" onclick="saveTripName()" style="font-size:12px;padding:10px 12px">Save</button>
+    </div>
+    <div id="trip-name-display" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--snow);margin-top:8px;display:none"></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Add Day form -->
+  <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mist);margin-bottom:10px">Add Day</div>
+  <div class="add-stop-form">
+    <div class="inp-half-wrap">
+      <div style="flex:1">
+        <label class="form-label">Date</label>
+        <input type="date" id="new-day-date" class="inp" style="width:100%">
+      </div>
+      <div style="flex:1">
+        <label class="form-label">Day title</label>
+        <input type="text" id="new-day-title" class="inp" style="width:100%" placeholder="e.g. Arrive Kaza">
+      </div>
+    </div>
+    <button class="btn-green" style="width:100%" onclick="addDay()"><i class="ti ti-plus"></i> Add Day to Itinerary</button>
+  </div>
+
+  <!-- Add Stop form -->
+  <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mist);margin-bottom:10px">Add Stop to a Day</div>
+  <div class="add-stop-form">
+    <label class="form-label">Day</label>
+    <select id="stop-day-sel" class="inp" style="width:100%;margin-bottom:8px">
+      <option value="">— Select a day first —</option>
+    </select>
+    <label class="form-label">Stop name</label>
+    <input type="text" id="stop-name" class="inp" style="width:100%;margin-bottom:8px" placeholder="e.g. 🏔️ Rohtang Pass">
+    <label class="form-label">Description</label>
+    <textarea id="stop-desc" class="inp" placeholder="Details, timings, what to expect…"></textarea>
+    <label class="form-label">💡 Tip (optional)</label>
+    <input type="text" id="stop-tip" class="inp" style="width:100%;margin-bottom:8px" placeholder="Pro tip or important note">
+    <button class="btn-green" style="width:100%" onclick="addStop()"><i class="ti ti-map-pin"></i> Add Stop</button>
+  </div>
+
+  <!-- Rendered custom itinerary -->
+  <div id="my-itinerary-list">
+    <div class="empty"><i class="ti ti-map-2"></i>Your custom itinerary will appear here.<br>Start by adding a day above!</div>
+  </div>
+
+  <!-- Notes -->
+  <hr class="divider">
+  <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mist);margin-bottom:8px">Trip Notes</div>
+  <textarea id="trip-notes" class="inp" style="width:100%;min-height:100px" placeholder="Packing list, contacts, emergency numbers, anything…" oninput="saveNotes()"></textarea>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────
+const BUDGET = 21200;
+let expenses = JSON.parse(localStorage.getItem('km_expenses') || '[]');
+let myDays = JSON.parse(localStorage.getItem('km_days') || '[]');
+let currentPlan = 1, currentBudgetPlan = 1;
+
+// ─── TAB / PLAN SWITCHING ──────────────────────────────────
+function switchTab(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+function switchPlan(n, el) {
+  currentPlan = n;
+  document.getElementById('plan1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('plan2').style.display = n === 2 ? 'block' : 'none';
+  document.querySelectorAll('#page-plan .plan-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function switchBudgetPlan(n, el) {
+  currentBudgetPlan = n;
+  document.getElementById('budget1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('budget2').style.display = n === 2 ? 'block' : 'none';
+  document.querySelectorAll('#page-budget .plan-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleDay(id) {
+  const stops = document.getElementById(id + '-stops');
+  const icon = document.getElementById(id + '-icon');
+  if (!stops) return;
+  const open = stops.style.display !== 'none';
+  stops.style.display = open ? 'none' : 'block';
+  if (icon) icon.classList.toggle('open', !open);
+}
+
+// ─── TRACKER ──────────────────────────────────────────────
+function saveExpenses() { localStorage.setItem('km_expenses', JSON.stringify(expenses)); }
+
+function addExpense() {
+  const name = document.getElementById('exp-name').value.trim();
+  const amt = parseFloat(document.getElementById('exp-amt').value);
+  const who = document.getElementById('exp-who').value;
+  if (!name || !amt || amt <= 0) return;
+  expenses.push({ id: Date.now(), name, amt: Math.round(amt), who });
+  document.getElementById('exp-name').value = '';
+  document.getElementById('exp-amt').value = '';
+  saveExpenses();
+  renderExpenses();
+  updateSplit();
+}
+
+function deleteExpense(id) {
+  expenses = expenses.filter(e => e.id !== id);
+  saveExpenses();
+  renderExpenses();
+  updateSplit();
+}
+
+function renderExpenses() {
+  const list = document.getElementById('expense-list');
+  if (expenses.length === 0) {
+    list.innerHTML = '<div class="empty"><i class="ti ti-receipt"></i>No expenses yet.<br>Add your first one above!</div>';
+  } else {
+    list.innerHTML = expenses.map(e => {
+      const cls = e.who === 'both' ? 'who-both' : e.who === 'A' ? 'who-a' : 'who-b';
+      const lbl = e.who === 'both' ? 'Split' : e.who;
+      return `<div class="tracked-row">
+        <span class="who-pill ${cls}">${lbl}</span>
+        <span class="tracked-label">${e.name}</span>
+        <span class="tracked-amt">₹${e.amt.toLocaleString('en-IN')}</span>
+        <button class="btn-del" onclick="deleteExpense(${e.id})"><i class="ti ti-trash"></i></button>
+      </div>`;
+    }).join('');
+  }
+  const total = expenses.reduce((s, e) => s + e.amt, 0);
+  const pct = Math.min(Math.round((total / BUDGET) * 100), 100);
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = pct + '%';
+  fill.className = 'prog-fill' + (total > BUDGET ? ' over' : pct > 80 ? ' warn' : '');
+  document.getElementById('spent-pct').textContent = '₹' + total.toLocaleString('en-IN') + ' / ₹' + BUDGET.toLocaleString('en-IN');
+}
+
+// ─── SPLIT ────────────────────────────────────────────────
+function updateSplit() {
+  let aTotal = 0, bTotal = 0;
+  expenses.forEach(e => {
+    if (e.who === 'A') aTotal += e.amt;
+    else if (e.who === 'B') bTotal += e.amt;
+    else { aTotal += e.amt / 2; bTotal += e.amt / 2; }
+  });
+  const grand = aTotal + bTotal;
+  const fairShare = grand / 2;
+  const diff = Math.round(aTotal - fairShare);
+  const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+
+  document.getElementById('split-total').textContent = fmt(grand);
+  document.getElementById('split-each').textContent = fmt(fairShare);
+  document.getElementById('a-paid').textContent = fmt(aTotal);
+  document.getElementById('b-paid').textContent = fmt(bTotal);
+
+  const banner = document.getElementById('settle-banner');
+  const settleText = document.getElementById('settle-text');
+  const settleAmt = document.getElementById('settle-amt');
+
+  if (Math.abs(diff) < 1) {
+    banner.className = 'settle-banner clear';
+    settleText.textContent = 'All Settled ✓';
+    settleText.style.color = 'var(--green-light)';
+    settleAmt.textContent = '₹0';
+    settleAmt.style.color = 'var(--green-light)';
+  } else {
+    banner.className = 'settle-banner owes';
+    const who = diff > 0 ? 'B owes A' : 'A owes B';
+    settleText.textContent = who;
+    settleText.style.color = 'var(--red)';
+    settleAmt.textContent = fmt(Math.abs(diff));
+    settleAmt.style.color = 'var(--red)';
+  }
+
+  // Category breakdown
+  const cats = {};
+  expenses.forEach(e => { cats[e.name] = (cats[e.name] || 0) + e.amt; });
+  const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+  const cb = document.getElementById('category-breakdown');
+  if (sorted.length === 0) {
+    cb.innerHTML = '<div class="empty" style="padding:16px"><i class="ti ti-chart-bar"></i>No data yet</div>';
+  } else {
+    cb.innerHTML = sorted.map(([name, amt]) => {
+      const pct = grand > 0 ? Math.round((amt / grand) * 100) : 0;
+      return `<div class="cat-bar-row">
+        <div class="cat-bar-label"><span>${name}</span><span>₹${amt.toLocaleString('en-IN')} · ${pct}%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ─── MY TRIP (Custom Itinerary) ───────────────────────────
+function saveDays() { localStorage.setItem('km_days', JSON.stringify(myDays)); }
+
+function addDay() {
+  const date = document.getElementById('new-day-date').value;
+  const title = document.getElementById('new-day-title').value.trim();
+  if (!title) return alert('Please enter a day title.');
+  const id = 'day_' + Date.now();
+  myDays.push({ id, date, title, stops: [] });
+  document.getElementById('new-day-date').value = '';
+  document.getElementById('new-day-title').value = '';
+  saveDays();
+  renderMyItinerary();
+  updateDaySel();
+}
+
+function deleteDay(id) {
+  if (!confirm('Delete this day and all its stops?')) return;
+  myDays = myDays.filter(d => d.id !== id);
+  saveDays();
+  renderMyItinerary();
+  updateDaySel();
+}
+
+function addStop() {
+  const dayId = document.getElementById('stop-day-sel').value;
+  const name = document.getElementById('stop-name').value.trim();
+  const desc = document.getElementById('stop-desc').value.trim();
+  const tip = document.getElementById('stop-tip').value.trim();
+  if (!dayId || !name) return alert('Select a day and enter a stop name.');
+  const day = myDays.find(d => d.id === dayId);
+  if (!day) return;
+  day.stops.push({ id: 'stop_' + Date.now(), name, desc, tip });
+  document.getElementById('stop-name').value = '';
+  document.getElementById('stop-desc').value = '';
+  document.getElementById('stop-tip').value = '';
+  saveDays();
+  renderMyItinerary();
+}
+
+function deleteStop(dayId, stopId) {
+  const day = myDays.find(d => d.id === dayId);
+  if (!day) return;
+  day.stops = day.stops.filter(s => s.id !== stopId);
+  saveDays();
+  renderMyItinerary();
+}
+
+function updateDaySel() {
+  const sel = document.getElementById('stop-day-sel');
+  const prev = sel.value;
+  sel.innerHTML = myDays.length === 0
+    ? '<option value="">— Add a day first —</option>'
+    : myDays.map(d => `<option value="${d.id}" ${d.id === prev ? 'selected' : ''}>${d.date ? d.date + ' · ' : ''}${d.title}</option>`).join('');
+}
+
+function renderMyItinerary() {
+  const container = document.getElementById('my-itinerary-list');
+  if (myDays.length === 0) {
+    container.innerHTML = '<div class="empty"><i class="ti ti-map-2"></i>Your custom itinerary will appear here.<br>Start by adding a day above!</div>';
+    return;
+  }
+  container.innerHTML = myDays.map((day, di) => {
+    const stopsHtml = day.stops.length === 0
+      ? '<div style="padding:10px 0;font-size:12px;color:var(--mist);text-align:center">No stops yet — add one above</div>'
+      : day.stops.map(s => `
+        <div class="my-stop-row">
+          <div class="stop-dot-col"><div class="stop-dot"></div>${day.stops.indexOf(s) < day.stops.length-1 ? '<div class="stop-line"></div>' : ''}</div>
+          <div class="stop-content" style="flex:1">
+            <div class="stop-name">${s.name}</div>
+            ${s.desc ? `<div class="stop-desc">${s.desc}</div>` : ''}
+            ${s.tip ? `<div class="stop-tip"><i class="ti ti-bulb"></i>${s.tip}</div>` : ''}
+          </div>
+          <button class="btn-icon danger" onclick="deleteStop('${day.id}','${s.id}')" title="Remove stop"><i class="ti ti-x"></i></button>
+        </div>`).join('');
+
+    const dateLabel = day.date
+      ? new Date(day.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+      : '';
+
+    return `<div class="my-day-card" id="mycard-${day.id}">
+      <div class="my-day-header">
+        ${dateLabel ? `<span class="day-date">${dateLabel}</span>` : ''}
+        <span class="day-title-text">${day.title}</span>
+        <div class="my-day-actions">
+          <button class="btn-icon danger" onclick="deleteDay('${day.id}')" title="Delete day"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="my-stops-body">${stopsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function saveTripName() {
+  const val = document.getElementById('trip-name-inp').value.trim();
+  if (!val) return;
+  localStorage.setItem('km_tripname', val);
+  document.getElementById('trip-name-display').textContent = val;
+  document.getElementById('trip-name-display').style.display = 'block';
+  document.getElementById('trip-name-inp').value = '';
+}
+
+function saveNotes() {
+  localStorage.setItem('km_notes', document.getElementById('trip-notes').value);
+}
+
+// ─── INIT ────────────────────────────────────────────────
+function init() {
+  renderExpenses();
+  updateSplit();
+  renderMyItinerary();
+  updateDaySel();
+
+  // Restore trip name
+  const tn = localStorage.getItem('km_tripname');
+  if (tn) {
+    document.getElementById('trip-name-display').textContent = tn;
+    document.getElementById('trip-name-display').style.display = 'block';
+  }
+
+  // Restore notes
+  const notes = localStorage.getItem('km_notes');
+  if (notes) document.getElementById('trip-notes').value = notes;
+}
+
+init();
+</script>
+</body>
+</html>
